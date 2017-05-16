@@ -5,56 +5,39 @@ Created on Mon Apr 24 13:26:07 2017
 @author: Анастасия
 """
 
-total_cost = 1000000
-portion_down_payment = 0.25
 annual_salary = int(input('Enter your starting annual salary:'))
-min_sum = portion_down_payment * total_cost #250 000
-#portion_saved = float(input("Enter your portion saved:"))
+down_payment = 250000.0
+error = 100
+semi_annual_raise = 0.07
+r = 0.04
+all_months = 36
+left = 0
+right = 10000
+saving_rate = 0.0
 steps = 0
-low = 0
-high = 1
-epsilon = 100 #-+100$ from total cost
-
-def calculation_of_savings(annual_salary, portion_saved): #current_savings_36_months
-    current_saving = 0
-    numbers_of_months = 0
-    r = 0.04
-    semi_annual_raise = 0.07
-    montly_salary = annual_salary/12
     
-    while numbers_of_months < 36:
-        current_saving += montly_salary * portion_saved + (current_saving * r/12)
-        numbers_of_months += 1
-        if numbers_of_months%6 == 0:        
-            montly_salary +=  montly_salary * semi_annual_raise
-    return current_saving
-
-def check(a):
-    if a > 0:
-        i = 1
-    if a < 0:
-        i = -1
-    else:
-        i = 0
-    return i
-
-
-if calculation_of_savings(annual_salary, high) < min_sum:
-    print('It is not possible to pay the down payment in three years.')
+while left + 1 < right:
+    portion_saved =int((left+right)/2)
+    current_savings = 0.0
+    monthly_salary = annual_salary / 12
+    for month in range(1, all_months+1):
+        current_savings += (current_savings * r) / 12 + (
+            portion_saved/10000 * monthly_salary)
+        if month % 6 == 0:
+            monthly_salary += monthly_salary * semi_annual_raise
+    steps += 1
+    difference = current_savings - down_payment
+    if 0.0 <= difference < error:
+        saving_rate =(left + right)/2
+        break
+    elif difference < 0:
+        left = portion_saved
+    elif difference > error:
+        right = portion_saved
+saving_rate = saving_rate/10000
+    
+if 0.0 < saving_rate < 1:
+    print('Best savings rate:', saving_rate)
+    print('Steps in bisection search:', steps)
 else:
-    while True:
-        steps +=1
-        guess = (high + low)/2
-        total_saved_low = calculation_of_savings(annual_salary, low)
-        total_saved_high = calculation_of_savings(annual_salary, high)
-        total_saved_guess = calculation_of_savings(annual_salary, guess)
-        if abs(min_sum - total_saved_guess) < epsilon:
-            print('Beat savings rate: {0:6.4f}'.format(guess))
-            print('Steps in bisection search: ',steps)
-            break
-        elif check(min_sum - total_saved_low) != check(min_sum - total_saved_guess) < 0:
-            high = guess
-        else:
-            low = guess
-    
-    
+    print('It is not possible to pay he down payment in three years.')
